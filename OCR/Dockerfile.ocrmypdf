@@ -1,0 +1,37 @@
+#
+# OCR solution using tesseract and ocrmypdf
+#
+FROM alpine:3.7
+MAINTAINER Tamas Meszaros <mt+docker@webit.hu>
+
+# Create user and working directory
+RUN addgroup docker \
+ && adduser -G docker -D docker \
+ && chown docker:docker /home/docker
+
+# Install deps
+RUN apk add --no-cache python3 build-base linux-headers python3-dev \
+    zlib-dev jpeg-dev ghostscript imagemagick pdftk poppler-utils file
+
+RUN python3 -m ensurepip
+RUN pip3 install --upgrade pip setuptools
+#RUN pip3 install --upgrade pypdf2
+RUN pip3 install --upgrade img2pdf
+RUN pip3 install --upgrade Pillow reportlab wheel
+
+# OCR software
+RUN apk add --no-cache tesseract-ocr ocrmypdf
+#RUN pip3 install ocrmypdf
+# TODO specify your languages other than English
+RUN apk add --no-cache tesseract-ocr-data-hun
+
+# Cleanup
+RUN rm -rf /tmp/* /var/tmp/* /usr/lib/python*/ensurepip /root/.cache
+
+# Install app entry point
+COPY . /
+
+USER docker
+WORKDIR /home/docker
+
+ENTRYPOINT ["/docker-wrapper.sh"]
