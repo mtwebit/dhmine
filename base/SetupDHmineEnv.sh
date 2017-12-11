@@ -5,7 +5,7 @@
 # This file licensed under Mozilla Public License v2.0 http://mozilla.org/MPL/2.0/
 #
 # To quickly grab a fresh copy of this file
-# curl -Os https://raw.githubusercontent.com/mtwebit/dhmine/base/master/SetupDHmineEnv.sh && chmod 700 SetupDHmineEnv.sh
+# curl -Os https://raw.githubusercontent.com/mtwebit/dhmine/master/base/SetupDHmineEnv.sh && chmod 700 SetupDHmineEnv.sh
 
 # Ask a question and provide a default answer
 # Sets the variable to the answer or the default value
@@ -29,7 +29,7 @@ function askif() {
 
 echo "*** DHmine Docker environment setup ***"
 dhdir=`pwd`
-ask dhdir "Directory that holds the DHmine installation" "dhdir"
+ask dhdir "Directory that holds the DHmine installation" "$dhdir"
 echo -n "$dhdir..."
 if [ ! -d $dhdir ]; then
   echo "does not exists. Creating it."
