@@ -15,7 +15,7 @@ dockercontainer=$(getcontainername $dockerimage)
 
 # Check requirements
 function service_check_reqs {
-  service_running $ldapserver && service_running $webproxy
+  service_running $ldapserver && service_running $webproxy && service_running $mongodb
 }
 
 function service_installed() {
@@ -33,25 +33,8 @@ if [ "$1" == "" ]; then
   return
 fi
 
-if [ "$ldapserver" == "" ]; then
-  error "LDAP Service is not installed."
-  return
-fi
-
-ldapcontainer=$(getcontainername $ldapserver)
-if ! service_running $ldapserver; then
-  error "A working LDAP service is required to install this component."
-  return
-fi
-
-if [ "$webproxy" == "" ]; then
-  error "Frontend Web Server is not installed."
-  return
-fi
-
-ldapcontainer=$(getcontainername $webproxy)
-if ! service_running $webproxy; then
-  error "A working Frontend Web Server is required to install this component."
+if ! service_check_reqs; then
+  error "Web Proxy and MongoDB are required to install this service."
   return
 fi
 
@@ -82,7 +65,7 @@ if [ "$dockercontainer" == "" ]; then
     --label "traefik.enable=true" \
     $dockerimage
   if [ ! -s "${wbdir}/config/rshiny/shiny-server.conf" ]; then
-    cat <<EOF > "${wbdir}/config/rshiny/"
+    cat <<EOF > "${wbdir}/config/rshiny/shiny-server.conf"
 # Instruct Shiny Server to run applications as the user "shiny"
 run_as shiny;
 
