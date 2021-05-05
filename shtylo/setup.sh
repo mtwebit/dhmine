@@ -10,7 +10,7 @@ title="Shtylo"
 desc="A Web-based stilomety tool"
 
 # The image file
-dockerimage="shtylo"
+dockerimage="shtylo:latest"
 
 # build the image if it does not exists
 if ! image_exists $dockerimage; then
@@ -19,11 +19,25 @@ fi
 
 if ! container_exists $containername; then
   if [ -z "$siport" ]; then
-    prefixStrip="n" # do not strip the path prefix from the URL at the Web proxy
+    prefixStrip="y"
     siport="4700"
+    htuser="demo"
+    htpassword=`generate_password`
   fi
 
   service_setup
+
+  ask htuser "HTTP Basic Auth username" $htuser
+  remember "$serviceconf" htuser
+  ask htpassword "HTTP Basic Auth password" $htpassword
+  remember "$serviceconf" htpassword
+
+  if [ ! -f "${wbconfigdir}/traefik/${containername}.htpasswd" ]; then
+    info "Creating "${wbconfigdir}/traefik/${containername}.htpasswd"..."
+    touch "${wbconfigdir}/traefik/${containername}.htpasswd"
+  fi
+  info "Storing password in ${wbconfigdir}/traefik/${containername}.htpasswd"
+  echo "${htuser}:`encode_htpasswd $htpassword`" >"${wbconfigdir}/traefik/${containername}.htpasswd"
 
     # -v ${servicelogdir}:/var/log/shiny-server \
   container_setup "$dockerimage" $containername \
